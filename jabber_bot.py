@@ -27,7 +27,7 @@ class IQClient(XMPPHandler, IQHandlerMixin):
     body_values = ['Test Announcement']
 
     def createForm(self):
-        """Create dummy form."""
+        """Create announce form."""
         subject_form_field = Field(var='subject', value=self.subject_value)
         announce_form_field = Field(fieldType='text-multi', var='body',
                                     values=self.body_values)
@@ -45,7 +45,7 @@ class IQClient(XMPPHandler, IQHandlerMixin):
         return request
 
     def onResult(self, res):
-        """Callback for result IQs""
+        """Callback for result IQs.
         @param res: IQ received
         @type res: domish.Element
         """
@@ -60,14 +60,22 @@ class IQClient(XMPPHandler, IQHandlerMixin):
             broad.addChild(form.toElement())
             request.send(SERV_JID.full())
         else:
-            log.msg('Broadcast sent')
+            log.msg('Announce sent.')
 
-    def launchAnnouncement(self):
-        """Initialise broadcast."""
+    def sendAnnounce(self, subject, body):
+        """Initialise broadcast.
+        @param subject: announce subject
+        @type subject: string
+        @param body: announce body
+        @type body: list of strings
+        """
         request = self.createRequest('set')
         broad = request.addElement((NS_COMMAND, 'command'))
         broad['node'] = BROADCAST_NODE
         broad['action'] = 'execute'
+        self.subject_value = subject
+        self.body_values = body
+        log.msg('Sending announce.')
         request.send(SERV_JID.full())
 
     def connectionInitialized(self):
